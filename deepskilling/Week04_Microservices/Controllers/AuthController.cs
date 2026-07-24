@@ -1,11 +1,11 @@
-﻿using JwtAuthenticationApi.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using JwtAuthenticationAPI.Models;
 
-namespace JwtAuthenticationApi.Controllers
+namespace JwtAuthenticationAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -14,19 +14,13 @@ namespace JwtAuthenticationApi.Controllers
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginModel model)
         {
-            if (IsValidUser(model))
+            if (model.Username == "admin" && model.Password == "admin123")
             {
                 var token = GenerateJwtToken(model.Username);
                 return Ok(new { Token = token });
             }
 
             return Unauthorized();
-        }
-
-        private bool IsValidUser(LoginModel model)
-        {
-            return model.Username == "admin" &&
-                   model.Password == "password";
         }
 
         private string GenerateJwtToken(string username)
@@ -39,9 +33,7 @@ namespace JwtAuthenticationApi.Controllers
             var key = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes("ThisIsASecretKeyForJwtToken"));
 
-            var creds = new SigningCredentials(
-                key,
-                SecurityAlgorithms.HmacSha256);
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
                 issuer: "MyAuthServer",
